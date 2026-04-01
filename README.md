@@ -11,6 +11,7 @@ A lightweight, customizable file uploader component for React using Material-UI 
 - 📁 **Drag & Drop Support** - Intuitive drag-and-drop file uploads
 - 🖼️ **Smart Previews** - Auto-generates previews for images and videos (first frame)
 - 🎨 **Fully Customizable** - Customize upload area, icons, text, and theme
+- ☁️ **AWS S3 Upload** - Optional multipart upload support for direct S3 uploads (optional)
 - 📦 **TypeScript Support** - Built with TypeScript for better developer experience
 - 🎭 **Material-UI Styled** - Seamless integration with MUI theme system
 - ⚡ **Lightweight** - Minimal dependencies, fast and performant
@@ -115,7 +116,7 @@ The main component for file uploads with drag-and-drop support.
 
 | Prop | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
-| `onUpload` | `(files: File[]) => void` | No | - | Callback triggered when user clicks the Upload button. Receives array of File objects. |
+| `onUpload` | `(files: File[]) => void` | No | - | Callback triggered when user clicks the Upload button. Receives array of File objects. Not used if `s3Config` is provided. |
 | `onDelete` | `(files: FileStatus[], id: string) => FileStatus[]` | No | - | Callback when a file is deleted. Receives current files array and file ID. Must return updated files array. |
 | `maxFiles` | `number` | No | `5` | Maximum number of files allowed in the uploader. |
 | `accept` | `string` | No | `"*"` | File type filter (e.g., "image/*", "image/*,video/*", ".pdf"). |
@@ -123,6 +124,7 @@ The main component for file uploads with drag-and-drop support.
 | `uploadAreaIcon` | `React.ReactNode` | No | `CloudUploadIcon` | Custom icon for the upload area. |
 | `uploadAreaTitle` | `React.ReactNode` | No | `"Drag & Drop files here"` | Custom title text for the upload area. |
 | `uploadAreaSubtitle` | `React.ReactNode` | No | `"or click to browse (Max {maxFiles} files)"` | Custom subtitle text for the upload area. |
+| `s3Config` | `S3Config` | No | - | AWS S3 multipart upload configuration. If provided, enables S3 upload instead of using `onUpload`. See S3 Upload section for details. |
 
 #### FileStatus
 
@@ -356,6 +358,189 @@ export const App = () => {
   );
 };
 ```
+
+---
+
+## AWS S3 Multipart Upload (Optional)
+
+The FileUploader supports optional AWS S3 multipart upload for large files. This feature allows you to upload directly to S3 with progress tracking.
+
+### How It Works
+
+1. Frontend initiates multipart upload via your backend API
+2. Backend returns an Upload ID
+3. Frontend splits file into chunks (default: 5MB each)
+4. For each chunk, frontend gets a presigned URL from your backend
+5. Frontend uploads each chunk directly to S3
+6. Frontend completes the multipart upload via your backend API
+
+### Backend Requirements
+
+Your backend needs to provide three API endpoints:
+
+```typescript
+// Initiate multipart upload
+POST /api/s3/initiate
+Request: { fileKey: string, mimeType: string }
+Response: { uploadId: string }
+
+// Get presigned URL for uploading a part
+POST /api/s3/presigned-url
+Request: { fileKey: string, partNumber: number, uploadId: string }
+Response: { presignedUrl: string }
+
+// Complete multipart upload
+POST /api/s3/complete
+Request: { fileKey: string, uploadId: string, parts: Array<{ partNumber: number, eTag: string }> }
+Response: void
+```
+
+### Frontend Usage
+
+```tsx
+import React from 'react';
+import { FileUploader } from 'react-mui-file-uploader';
+
+export const S3UploaderExample = () => {
+  const s3Config = {
+    initiateMultipartApi: async (fileKey, mimeType) => {
+      const response = await fetch('/api/s3/initiate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileKey, mimeType })
+      });
+      const data = await response.json();
+      return data.uploadId;
+    },
+
+    getPresignedUrlApi: async (fileKey, partNumber, uploadId) => {
+      const response = await fetch('/api/s3/presigned-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileKey, partNumber, uploadId })
+      });
+      const data = await response.json();
+      return data.presignedUrl;
+    },
+
+    completeMultipartApi: async (fileKey, uploadId, parts) => {
+      await fetch('/api/s3/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileKey, uploadId, parts })
+      });
+    },
+
+    generateFileKey: (file) => {
+      // Custom key generation - e.g., add timestamp or user ID
+      return `uploads/${Date.now()}-${file.name}`;
+    },
+
+    partSize: 5 * 1024 * 1024, // 5MB (default)
+  };
+
+  return (
+    <FileUploader
+      maxFiles={5}
+      accept="*"
+      s3Config={s3Config}
+      uploadAreaTitle="Upload to S3"
+      uploadAreaSubtitle="Drag files here for direct S3 upload"
+    />
+  );
+};
+```
+
+### FileStatus with S3 Upload
+
+When using S3 multipart upload, `FileStatus` includes additional fields:
+
+```typescript
+interface FileStatus {
+  // ... existing fields
+  file: File;
+  id: string;
+  progress: number;
+  status: 'pending' | 'uploading' | 'completed' | 'error';
+  previewUrl?: string;
+
+  // S3 multipart specific
+  s3UploadId?: string;                              // Upload ID from S3
+  s3Parts?: Array<{ partNumber: number; eTag: string }>; // Uploaded parts
+}
+```
+
+### Backend Example (Node.js with Express)
+
+```javascript
+const aws = require('aws-sdk');
+const s3 = new aws.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+});
+
+// Initiate multipart upload
+app.post('/api/s3/initiate', async (req, res) => {
+  const { fileKey, mimeType } = req.body;
+  try {
+    const params = {
+      Bucket: process.env.AWS_BUCKET,
+      Key: fileKey,
+      ContentType: mimeType,
+    };
+    const multipart = await s3.createMultipartUpload(params).promise();
+    res.json({ uploadId: multipart.UploadId });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get presigned URL
+app.post('/api/s3/presigned-url', async (req, res) => {
+  const { fileKey, partNumber, uploadId } = req.body;
+  try {
+    const params = {
+      Bucket: process.env.AWS_BUCKET,
+      Key: fileKey,
+      PartNumber: partNumber,
+      UploadId: uploadId,
+      Expires: 3600, // 1 hour
+    };
+    const presignedUrl = s3.getSignedUrl('uploadPart', params);
+    res.json({ presignedUrl });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Complete multipart upload
+app.post('/api/s3/complete', async (req, res) => {
+  const { fileKey, uploadId, parts } = req.body;
+  try {
+    const params = {
+      Bucket: process.env.AWS_BUCKET,
+      Key: fileKey,
+      UploadId: uploadId,
+      MultipartUpload: { Parts: parts },
+    };
+    await s3.completeMultipartUpload(params).promise();
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+```
+
+### S3Config Props
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `initiateMultipartApi` | `(fileKey: string, mimeType: string) => Promise<string>` | Yes | API to initiate multipart upload. Returns Upload ID. |
+| `getPresignedUrlApi` | `(fileKey: string, partNumber: number, uploadId: string) => Promise<string>` | Yes | API to get presigned URL for uploading a part. |
+| `completeMultipartApi` | `(fileKey: string, uploadId: string, parts: Array<{ partNumber: number; eTag: string }>) => Promise<void>` | Yes | API to complete multipart upload. |
+| `generateFileKey` | `(file: File) => string` | No | Custom function to generate S3 key. Default: uses file name. |
+| `partSize` | `number` | No | Part size in bytes. Default: 5MB (5242880). |
 
 ---
 

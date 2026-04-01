@@ -4,6 +4,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { FileStatus, FileUploaderProps } from '../types';
 import { FileItem } from './FileItem';
 import { generatePreview } from '../utils/generatePreview';
+import { uploadToS3 } from '../utils/s3Upload';
 
 export const FileUploader: React.FC<FileUploaderProps> = ({ 
   onUpload,
@@ -13,7 +14,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   renderUploadArea,
   uploadAreaIcon,
   uploadAreaTitle,
-  uploadAreaSubtitle
+  uploadAreaSubtitle,
+  s3Config
 }) => {
   const [files, setFiles] = useState<FileStatus[]>([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -58,6 +60,57 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
       setFiles(newFiles);
     } else {
       setFiles(prev => prev.filter(f => f.id !== id));
+    }
+  };
+
+  const handleUpload = async () => {
+    if (s3Config) {
+      // Upload to S3 using multipart upload
+      for (const fileObj of files) {
+        if (fileObj.status === 'pending') {
+          try {
+            setFiles(prev =>
+              prev.map(f =>
+                f.id === fileObj.id ? { ...f, status: 'uploading' as const } : f
+              )
+            );
+
+            const result = await uploadToS3(fileObj.file, s3Config, (progress) => {
+              setFiles(prev =>
+                prev.map(f =>
+                  f.id === fileObj.id
+                    ? { ...f, progress: progress.percentage }
+                    : f
+                )
+              );
+            });
+
+            setFiles(prev =>
+              prev.map(f =>
+                f.id === fileObj.id
+                  ? {
+                      ...f,
+                      status: 'completed' as const,
+                      progress: 100,
+                      s3UploadId: result.uploadId,
+                      s3Parts: result.parts,
+                    }
+                  : f
+              )
+            );
+          } catch (error) {
+            console.error(`Failed to upload ${fileObj.file.name}:`, error);
+            setFiles(prev =>
+              prev.map(f =>
+                f.id === fileObj.id ? { ...f, status: 'error' as const } : f
+              )
+            );
+          }
+        }
+      }
+    } else {
+      // Use default onUpload callback
+      onUpload?.(files.map(f => f.file));
     }
   };
 
@@ -115,7 +168,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         <Button 
           variant="contained" 
           fullWidth 
-          onClick={() => onUpload?.(files.map(f => f.file))}
+          onClick={handleUpload}
           sx={{ mt: 2 }}
         >
           Upload {files.length} Files

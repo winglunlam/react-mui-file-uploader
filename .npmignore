@@ -1,0 +1,13 @@
+assets
+node_modules
+example
+webpack.config.js
+webpack.config.prod.js
+src
+tsconfig.json
+.git
+.gitignore
+.env
+dist
+*.log
+.DS_Store

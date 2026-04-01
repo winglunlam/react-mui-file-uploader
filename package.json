@@ -1,0 +1,61 @@
+{
+  "name": "react-mui-file-uploader",
+  "homepage": "https://winglunlam.github.io/react-mui-file-uploader",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/winglunlam/react-mui-file-uploader"
+  },
+  "description": "A lightweight, multi-file dropzone for Material UI with progress bars and previews.",
+  "dependencies": {
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "webpack serve --open --hot --mode development --static ./example",
+    "build": "webpack --config webpack.config.prod.js",
+    "build:types": "tsc --emitDeclarationOnly --outDir dist",
+    "prepublishOnly": "npm run build && npm run build:types",
+    "build:demo": "webpack --config webpack.config.demo.js",
+    "predeploy": "npm run build:demo",
+    "deploy": "gh-pages -d dist-demo"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "peerDependencies": {
+    "@emotion/react": "^11.0.0",
+    "@emotion/styled": "^11.0.0",
+    "@mui/icons-material": "^6.0.0 || ^7.0.0",
+    "@mui/material": "^6.0.0 || ^7.0.0",
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.3.0",
+    "html-webpack-plugin": "^5.6.3",
+    "ts-loader": "^9.5.2",
+    "typescript": "^4.9.5",
+    "webpack": "^5.100.2",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.2",
+    "@types/react": "^19.1.8",
+    "@types/node": "^16.18.126",
+    "@types/react-dom": "^19.1.6"
+  },
+  "keywords": [
+    "react",
+    "file-uploader",
+    "dropzone",
+    "mui",
+    "material-ui"
+  ],
+  "author": "Alan Lam",
+  "license": "MIT"
+}

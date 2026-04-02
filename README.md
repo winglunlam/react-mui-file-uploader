@@ -1,10 +1,10 @@
-# react-mui-file-uploader
+# mui-file-uploader-pro
 
 A lightweight, customizable file uploader component for React using Material-UI (MUI). Features drag-and-drop support, file previews (images, videos), progress tracking, and full theme customization.
 
 ## Demo
 
-[https://winglunlam.github.io/react-mui-file-uploader/](https://winglunlam.github.io/react-mui-file-uploader/)
+[https://winglunlam.github.io/mui-file-uploader-pro/](https://winglunlam.github.io/mui-file-uploader-pro/)
 
 ---
 
@@ -28,7 +28,7 @@ A lightweight, customizable file uploader component for React using Material-UI 
 
 ### Prerequisites
 
-Before installing `react-mui-file-uploader`, make sure you have the required peer dependencies installed:
+Before installing `mui-file-uploader-pro`, make sure you have the required peer dependencies installed:
 
 ```bash
 npm install @mui/material @mui/icons-material @emotion/react @emotion/styled
@@ -37,7 +37,7 @@ npm install @mui/material @mui/icons-material @emotion/react @emotion/styled
 ### Install the Package
 
 ```bash
-npm install react-mui-file-uploader
+npm install mui-file-uploader-pro
 ```
 
 ---
@@ -47,7 +47,7 @@ npm install react-mui-file-uploader
 ```tsx
 import React, { useState } from 'react';
 import { ThemeProvider, CssBaseline, Container, Typography, Box, Paper } from '@mui/material';
-import { FileUploader, createUploaderTheme, FileStatus } from 'react-mui-file-uploader';
+import { FileUploader, createUploaderTheme, FileStatus } from 'mui-file-uploader-pro';
 
 const theme = createUploaderTheme({
   palette: {
@@ -196,7 +196,7 @@ const handleUpload = (files: FileStatus[], updateProgress: (fileId: string, prog
 Customize individual elements of the upload area:
 
 ```tsx
-import { FileUploader } from 'react-mui-file-uploader';
+import { FileUploader } from 'mui-file-uploader-pro';
 import { CloudDone } from '@mui/icons-material';
 
 <FileUploader
@@ -265,7 +265,7 @@ The FileUploader integrates seamlessly with Material-UI's theming system using `
 ### Basic Theme Customization
 
 ```tsx
-import { createUploaderTheme } from 'react-mui-file-uploader';
+import { createUploaderTheme } from 'mui-file-uploader-pro';
 import { ThemeProvider } from '@mui/material/styles';
 
 const customTheme = createUploaderTheme({
@@ -335,8 +335,8 @@ import {
   Button,
 } from '@mui/material';
 import ImageIcon from '@mui/icons-material/Image';
-import { FileStatus } from 'react-mui-file-uploader';
-import { FileUploader, createUploaderTheme } from 'react-mui-file-uploader';
+import { FileStatus } from 'mui-file-uploader-pro';
+import { FileUploader, createUploaderTheme } from 'mui-file-uploader-pro';
 
 const theme = createUploaderTheme({
   palette: {
@@ -455,7 +455,7 @@ Response: void
 
 ```tsx
 import React from 'react';
-import { FileUploader } from 'react-mui-file-uploader';
+import { FileUploader } from 'mui-file-uploader-pro';
 
 export const S3UploaderExample = () => {
   const s3Config = {

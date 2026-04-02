@@ -1,10 +1,10 @@
 {
-  "name": "react-mui-file-uploader",
-  "homepage": "https://winglunlam.github.io/react-mui-file-uploader",
-  "version": "0.1.0",
+  "name": "mui-file-uploader-pro",
+  "homepage": "https://winglunlam.github.io/mui-file-uploader-pro",
+  "version": "0.1.1",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/winglunlam/react-mui-file-uploader"
+    "url": "git+https://github.com/winglunlam/mui-file-uploader-pro"
   },
   "description": "A lightweight, multi-file dropzone for Material UI with progress bars and previews.",
   "dependencies": {

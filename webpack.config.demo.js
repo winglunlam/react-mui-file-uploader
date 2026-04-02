@@ -8,7 +8,7 @@ module.exports = {
     // We use 'dist-demo' to avoid clashing with your library's 'dist'
     path: path.resolve(__dirname, 'dist-demo'),
     filename: 'bundle.[contenthash].js',
-    publicPath: '/react-mui-file-uploader/', 
+    publicPath: '/mui-file-uploader-pro/', 
     clean: true,
   },
   module: {

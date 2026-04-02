@@ -114,6 +114,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
       // Wait for all uploads to complete
       await Promise.all(uploadPromises);
     } else {
+      const pendingFiles = files.filter(f => f.status === 'pending');
+
       // Use default onUpload callback with progress update function
       const updateProgress = (fileId: string, progress: number) => {
         setFiles(prev =>
@@ -128,7 +130,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         );
       };
 
-      onUpload?.(files, updateProgress);
+      onUpload?.(pendingFiles, updateProgress);
     }
   };
 

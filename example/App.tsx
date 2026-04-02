@@ -15,6 +15,8 @@ export const App = () => {
   const [uploadStatus, setUploadStatus] = useState<string>('');
 
   const handleUploadClick = async (files: FileStatus[], updateProgress: (fileId: string, progress: number) => void) => {
+    if (files.length === 0) return;
+    
     setUploadStatus('Uploading...');
     
     // Upload files and update progress asynchronously

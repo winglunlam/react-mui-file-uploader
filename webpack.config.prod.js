@@ -39,7 +39,6 @@ module.exports = {
     '@mui/system': '@mui/system',
     '@emotion/react': '@emotion/react',
     '@emotion/styled': '@emotion/styled',
-    'emoji-picker-react': 'emoji-picker-react'
   },
   devtool: false,
 };

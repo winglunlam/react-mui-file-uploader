@@ -8,6 +8,5 @@ tsconfig.json
 .git
 .gitignore
 .env
-dist
 *.log
 .DS_Store

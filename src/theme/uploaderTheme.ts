@@ -1,9 +1,9 @@
-import { ThemeOptions } from '@mui/material/styles';
+import { ThemeOptions, createTheme } from '@mui/material/styles';
 
-export const createUploaderTheme = (options: ThemeOptions = {}): ThemeOptions => {
-  return {
+export const createUploaderTheme = (options: ThemeOptions = {}) => {
+  return createTheme({
     ...options,
-  };
+  });
 };
 
-export const defaultUploaderTheme: ThemeOptions = {};
+export const defaultUploaderTheme = createTheme({});

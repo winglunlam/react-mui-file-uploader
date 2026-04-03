@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ThemeProvider, createTheme, CssBaseline, Container, Typography, Box, Paper } from '@mui/material';
+import { ThemeProvider, CssBaseline, Container, Typography, Box, Paper } from '@mui/material';
 import { FileStatus } from '../src';
 import { FileUploader, createUploaderTheme } from '../src';
 
-const theme = createTheme(
-  createUploaderTheme({
-    palette: {
-      primary: { main: '#1976d2' },
-      background: { default: '#f5f5f5' }
-    },
-  })
-);
+const theme = createUploaderTheme({
+  palette: {
+    primary: { main: '#1976d2' },
+    background: { default: '#f5f5f5' }
+  },
+});
 
 export const App = () => {
   const [uploadStatus, setUploadStatus] = useState<string>('');

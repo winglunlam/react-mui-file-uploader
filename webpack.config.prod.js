@@ -32,12 +32,12 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js'],
   },
   externals: {
-    'react': 'React',
-    'react-dom': 'ReactDOM',
-    '@mui/material': 'MaterialUI',
-    '@mui/material/styles': 'MaterialUI',
-    '@emotion/react': 'emotionReact',
-    '@emotion/styled': 'emotionStyled',
+    'react': 'react',
+    'react-dom': 'react-dom',
+    '@mui/material': '@mui/material',
+    '@mui/material/styles': '@mui/material/styles',
+    '@emotion/react': '@emotion/react',
+    '@emotion/styled': '@emotion/styled',
   },
   devtool: false,
 };
